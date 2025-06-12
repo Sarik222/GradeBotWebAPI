@@ -1,6 +1,7 @@
-using GradeBotWebAPI.Database;
+п»їusing GradeBotWebAPI.Database;
 using GradeBotWebAPI.Models;
 using GradeBotWebAPI.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -11,19 +12,19 @@ namespace GradeBotWebAPI
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddControllers();
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-            // Инициализация базы данных
+            // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ Р±Р°Р·С‹ РґР°РЅРЅС‹С…
             DbInitializer.Initialize(connectionString);
 
-            // Добавление сервисов
-            builder.Services.AddControllers();
+            // Р”РѕР±Р°РІР»РµРЅРёРµ СЃРµСЂРІРёСЃРѕРІ
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1", new() { Title = "GradeBot API", Version = "v1" });
 
-                // Добавляем схему Bearer
+                // Р”РѕР±Р°РІР»СЏРµРј СЃС…РµРјСѓ Bearer
                 options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
                 {
                     Name = "Authorization",
@@ -31,7 +32,7 @@ namespace GradeBotWebAPI
                     Scheme = "Bearer",
                     BearerFormat = "JWT",
                     In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-                    Description = "Введите 'Bearer {токен}'"
+                    Description = "Р’РІРµРґРёС‚Рµ 'Bearer {С‚РѕРєРµРЅ}'"
                 });
 
                 options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
@@ -50,28 +51,33 @@ namespace GradeBotWebAPI
     });
             });
 
-            // JWT настройки
+            // JWT РЅР°СЃС‚СЂРѕР№РєРё
             var jwtSection = builder.Configuration.GetSection("Jwt");
             builder.Services.Configure<JwtSettings>(jwtSection);
             var jwtSettings = jwtSection.Get<JwtSettings>();
 
-            builder.Services.AddAuthentication("Bearer")
-                .AddJwtBearer("Bearer", options =>
-                {
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-                        ValidIssuer = jwtSettings.Issuer,
-                        ValidAudience = jwtSettings.Audience,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key))
-                    };
-                });
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings.Issuer,           //СЌС‚Рё Р·РЅР°С‡РµРЅРёСЏ РёР· appsettings.json
+                    ValidAudience = jwtSettings.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key))
+
+            };
+            }); ;
 
 
-            // Регистрация зависимостей
+            // Р РµРіРёСЃС‚СЂР°С†РёСЏ Р·Р°РІРёСЃРёРјРѕСЃС‚РµР№
             builder.Services.AddAuthorization();
             builder.Services.AddSingleton(new SqliteConnectionFactory(connectionString));
             builder.Services.AddScoped<StudentService>();
@@ -89,11 +95,17 @@ namespace GradeBotWebAPI
             }
 
             app.UseHttpsRedirection();
-
+            app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();
+
+            var dataSource = app.Services.GetRequiredService<Microsoft.AspNetCore.Routing.EndpointDataSource>();
+            foreach (var endpoint in dataSource.Endpoints)
+            {
+                Console.WriteLine($"вћЎ Endpoint: {endpoint.DisplayName}");
+            }
 
             app.Run();
         }

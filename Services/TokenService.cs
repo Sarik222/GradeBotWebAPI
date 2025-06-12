@@ -13,14 +13,15 @@ public class TokenService
     {
         _jwtSettings = jwtSettings.Value;
     }
-
+    //создание claims-данных, которые вкладываются в токен
     public string GenerateToken(string email, string role) //возвращает токен
     {
         var claims = new[]
         {
-            new Claim(ClaimTypes.Email, email), //создание claims-данных, которые вкладываются в токен
+            new Claim(ClaimTypes.Email, email),
             new Claim(ClaimTypes.Role, role)
         };
+
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key)); //создание ключа и подписей
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

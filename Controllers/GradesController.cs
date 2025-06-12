@@ -6,10 +6,11 @@ using System.Security.Claims;
 
 namespace GradeBotWebAPI.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class GradesController : ControllerBase
-    {
+    {   
         private readonly GradeService _gradeService;
         private readonly StudentService _studentService;
 
@@ -30,7 +31,7 @@ namespace GradeBotWebAPI.Controllers
 
         public class AddGradeRequest
         {
-            public string Subject { get; set; }
+            public string Subject { get; set; } = string.Empty;
             public int Value { get; set; }
         }
 
@@ -39,13 +40,15 @@ namespace GradeBotWebAPI.Controllers
         [Authorize(Roles = "Student")]
         public async Task<IActionResult> AddGrade([FromBody] AddGradeRequest request)
         {
-            var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+            Console.WriteLine("Метод AddGrade вызван"); // ⬅️ добавь сюда
+
+            var email = User.FindFirst(ClaimTypes.Email)?.Value;
             if (email == null)
                 return Unauthorized();
 
             var student = await _studentService.GetByEmailAsync(email);
             if (student == null)
-                return Unauthorized();
+                return NotFound();
 
             var grade = new Grade
             {
@@ -57,8 +60,6 @@ namespace GradeBotWebAPI.Controllers
             await _gradeService.AddGradeAsync(grade);
             return Ok();
         }
-
-
 
         [HttpGet("my")]
         [Authorize(Roles = "Student")]
@@ -146,6 +147,18 @@ namespace GradeBotWebAPI.Controllers
 
             await _gradeService.DeleteGradeAsync(id);
             return Ok();
+        }
+        [HttpGet("claims")]
+        public IActionResult ShowClaims()
+        {
+            var claims = User.Claims.Select(c => new { c.Type, c.Value });
+            return Ok(claims);
+        }
+        [HttpGet("test")]
+        public IActionResult Test()
+        {
+            Console.WriteLine("Метод TEST вызван!");
+            return Ok("Работает");
         }
     }
 }

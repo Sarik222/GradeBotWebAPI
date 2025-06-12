@@ -22,11 +22,11 @@ namespace GradeBotWebAPI.Database
                 StudentId INTEGER NOT NULL,
                 Subject TEXT NOT NULL,
                 Value INTEGER NOT NULL CHECK (Value BETWEEN 0 AND 10),
-                FOREIGN KEY(StudentId) REFERENCES Students(Id) 
+                FOREIGN KEY(StudentId) REFERENCES Students(Id)
             );";
 
             var createUsers = @"
-            CREATE TABLE IF NOT EXISTS Users (  
+            CREATE TABLE IF NOT EXISTS Users (
                 Id INTEGER PRIMARY KEY AUTOINCREMENT,
                 Email TEXT NOT NULL UNIQUE,
                 PasswordHash TEXT NOT NULL,
@@ -34,7 +34,7 @@ namespace GradeBotWebAPI.Database
             );";
 
             using var cmd = connection.CreateCommand();
-            // Выполняем по очереди
+
             cmd.CommandText = createStudents;
             cmd.ExecuteNonQuery();
 
@@ -42,7 +42,13 @@ namespace GradeBotWebAPI.Database
             cmd.ExecuteNonQuery();
 
             cmd.CommandText = createUsers;
-            cmd.ExecuteNonQuery(); 
+            cmd.ExecuteNonQuery();
+
+            // Автоматическая миграция студентов из Users в Students
+            cmd.CommandText = @"
+            INSERT OR IGNORE INTO Students (Name, Email)
+            SELECT '', Email FROM Users WHERE Role = 'Student';";
+            cmd.ExecuteNonQuery();
         }
     }
 }

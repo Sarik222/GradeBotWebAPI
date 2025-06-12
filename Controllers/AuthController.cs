@@ -46,8 +46,8 @@ namespace GradeBotWebAPI.Controllers
             return Ok(new
             {
                 token,         // возвращаем токен, а не просто Email и Role
-                user.Email, 
-                user.Role
+                user.Email,
+                user.Role,
             });
         }
     }
