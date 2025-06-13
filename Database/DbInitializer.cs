@@ -21,7 +21,7 @@ namespace GradeBotWebAPI.Database
                 Id INTEGER PRIMARY KEY AUTOINCREMENT,
                 StudentId INTEGER NOT NULL,
                 Subject TEXT NOT NULL,
-                Value INTEGER NOT NULL CHECK (Value BETWEEN 0 AND 10),
+                Value INTEGER NOT NULL CHECK (Value BETWEEN 0 AND 11),
                 FOREIGN KEY(StudentId) REFERENCES Students(Id)
             );";
 

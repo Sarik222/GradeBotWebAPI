@@ -57,8 +57,8 @@ namespace GradeBotWebAPI.Services
         public async Task<Student?> GetByUserIdAsync(int userId)
         {
             using var connection = _factory.CreateConnection();
-            string sql = "SELECT * FROM Students WHERE UserId = @UserId";
-            return await connection.QueryFirstOrDefaultAsync<Student>(sql, new { UserId = userId });
+            string sql = "SELECT * FROM Students WHERE Id = @Id";
+            return await connection.QueryFirstOrDefaultAsync<Student>(sql, new { Id = userId });
         }
     }
 }

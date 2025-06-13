@@ -40,7 +40,7 @@ namespace GradeBotWebAPI.Controllers
         [Authorize(Roles = "Student")]
         public async Task<IActionResult> AddGrade([FromBody] AddGradeRequest request)
         {
-            Console.WriteLine("Метод AddGrade вызван"); // ⬅️ добавь сюда
+            Console.WriteLine("Метод AddGrade вызван"); // ⬅добавь сюда
 
             var email = User.FindFirst(ClaimTypes.Email)?.Value;
             if (email == null)
@@ -78,12 +78,12 @@ namespace GradeBotWebAPI.Controllers
         }
 
 
-        // Админ получает оценки по имени студента
-        [HttpGet("by-name")]
+        // Админ получает оценки по ID студента
+        [HttpGet("by-id")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetGradesByStudentName([FromQuery] string name)
+        public async Task<IActionResult> GetGradesByStudentId([FromQuery] int studentId)
         {
-            var grades = await _gradeService.GetGradesByStudentNameAsync(name);
+            var grades = await _gradeService.GetGradesByStudentIdAsync(studentId);
             return Ok(grades);
         }
         public class UpdateGradeDto
@@ -147,18 +147,6 @@ namespace GradeBotWebAPI.Controllers
 
             await _gradeService.DeleteGradeAsync(id);
             return Ok();
-        }
-        [HttpGet("claims")]
-        public IActionResult ShowClaims()
-        {
-            var claims = User.Claims.Select(c => new { c.Type, c.Value });
-            return Ok(claims);
-        }
-        [HttpGet("test")]
-        public IActionResult Test()
-        {
-            Console.WriteLine("Метод TEST вызван!");
-            return Ok("Работает");
         }
     }
 }
