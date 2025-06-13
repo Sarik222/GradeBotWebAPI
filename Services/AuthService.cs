@@ -22,11 +22,22 @@ namespace GradeBotWebAPI.Services
             return result != null;
         }
 
-        public async Task<bool> RegisterAsync(string email, string password, string role = "Student")
+        public async Task<bool> RegisterAsync(string email, string password, string role)
         {
             if (!email.EndsWith("@edu.hse.ru")) return false;
 
             if (await UserExistsAsync(email)) return false;
+
+            var firstChar = role.Trim().ToLower().FirstOrDefault();
+
+            string normalizedRole = firstChar switch
+            {
+                'с' => "Student",
+                'а' => "Admin",
+                'С' => "Student",
+                'А' => "Admin",
+                _ => throw new ArgumentException("Некорректная роль. Введите роль, начинающуюся на 'с' или 'а'.")
+            };
 
             var passwordHash = ComputeHash(password);
 
@@ -34,7 +45,7 @@ namespace GradeBotWebAPI.Services
             {
                 Email = email,
                 PasswordHash = passwordHash,
-                Role = role
+                Role = normalizedRole
             };
 
             using var connection = _factory.CreateConnection();

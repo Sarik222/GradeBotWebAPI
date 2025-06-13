@@ -8,6 +8,12 @@ namespace GradeBotWebAPI.Services
     {
         private readonly SqliteConnectionFactory _factory;
 
+        private static readonly HashSet<string> AllowedSubjects = new()
+        {
+            "Безопасность жизнидеятельности", "Основы российской государственности", "Английский язык", "Физическая кульутра", "Практикум по основам разработки технической документации",
+            "Программирование", "Дискретная математика", "Профориентационный семинар", "История России", "Алгебра", "Теоретические основы информатики",
+            "Независимый экзамен по цифровой грамотности", "Проектный семинар", "Исследовательский или прикладной проект", "Математический анализ", "Правовая грамотность", "Внутренний экзамен по английскому языку"
+        };
         public GradeService(SqliteConnectionFactory factory) //kонструктор. Получает объект фабрики подключения к базе данных и сохраняет его в поле _factory.
         {
             _factory = factory;
@@ -15,7 +21,24 @@ namespace GradeBotWebAPI.Services
 
         public async Task AddGradeAsync(Grade grade) //Добавляет новую оценку в таблицу Grades
         {
+            if (!AllowedSubjects.Contains(grade.Subject))
+                throw new ArgumentException("Недопустимый предмет. Выберите из разрешённых или проверьте корректность ввода.");
+
             using var connection = _factory.CreateConnection();
+            // Проверка: есть ли уже такая оценка у этого студента по этому предмету и значению
+            string checkSql = @"SELECT COUNT(*) FROM Grades 
+                        WHERE StudentId = @StudentId AND Subject = @Subject AND Value = @Value";
+
+            var count = await connection.ExecuteScalarAsync<int>(checkSql, new
+            {
+                grade.StudentId,
+                grade.Subject,
+                grade.Value
+            });
+
+            if (count > 0)
+                throw new InvalidOperationException("Такая оценка уже существует.");
+
             string sql = "INSERT INTO Grades (StudentId, Subject, Value) VALUES (@StudentId, @Subject, @Value)"; //поля: StudentId, Subject, Value
             await connection.ExecuteAsync(sql, grade);
         }
