@@ -51,6 +51,13 @@ namespace GradeBotWebAPI.Services
             using var connection = _factory.CreateConnection();
             string sql = "INSERT INTO Users (Email, PasswordHash, Role) VALUES (@Email, @PasswordHash, @Role)";
             await connection.ExecuteAsync(sql, user);
+            if (normalizedRole == "Student")
+            {
+                string insertStudentSql = "INSERT INTO Students (Name, Email) Values (@Name, @Email)";
+                var student = new { Name = "", Email = email };
+                await connection.ExecuteAsync(insertStudentSql, student);
+                
+            }
             return true;
         }
 

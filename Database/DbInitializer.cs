@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.Sqlite;
+using System.Net.Mail;
 
 namespace GradeBotWebAPI.Database
 {
@@ -48,7 +49,7 @@ namespace GradeBotWebAPI.Database
             cmd.CommandText = @"
             INSERT OR IGNORE INTO Students (Name, Email)
             SELECT '', Email FROM Users WHERE Role = 'Student';";
-            cmd.ExecuteNonQuery();
+            
         }
     }
 }

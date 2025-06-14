@@ -16,7 +16,7 @@ namespace GradeBotWebAPI.Controllers
             _studentService = studentService;
         }
 
-        [HttpGet]
+        [HttpGet("Get all students for admins")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAll() //Возвращает список всех студентов
         {
@@ -24,32 +24,32 @@ namespace GradeBotWebAPI.Controllers
             return Ok(students);
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id) //Возвращает одного студента по его Id
-        {
-            var student = await _studentService.GetByIdAsync(id);
-            if (student == null)
-                return NotFound();
+        //[HttpGet("{id}")]
+        //public async Task<IActionResult> GetById(int id) //Возвращает одного студента по его Id
+        //{
+        //    var student = await _studentService.GetByUserIdAsync(id);
+        //    if (student == null)
+        //        return NotFound();
 
-            return Ok(student);
-        }
+        //    return Ok(student);
+        //}
 
-        [HttpGet("search")]
-        public async Task<IActionResult> SearchByName([FromQuery] string name) // Выполняет поиск студентов по имени (или части имени)
-        {
-            var students = await _studentService.SearchByNameAsync(name);
-            return Ok(students);
-        }
+        //[HttpGet("search")]
+        //public async Task<IActionResult> SearchByName([FromQuery] string name) // Выполняет поиск студентов по имени (или части имени)
+        //{
+        //    var students = await _studentService.SearchByNameAsync(name);
+        //    return Ok(students);
+        //}
 
-        [HttpPost]
-        [Authorize(Roles = "Student")]
-        public async Task<IActionResult> AddStudent([FromBody] Student student) //Добавляет студента в базу
-        {
-            await _studentService.AddStudentAsync(student);
-            return Ok();
-        }
+        //[HttpPost]
+        //[Authorize(Roles = "Student")]
+        //public async Task<IActionResult> AddStudent([FromBody] Student student) //Добавляет студента в базу
+        //{
+        //    await _studentService.AddStudentAsync(student);
+        //    return Ok();
+        //}
 
-        [HttpDelete("{id}")]
+        [HttpDelete("Delete student for admins")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id) //Удаляет студента по Id
         {

@@ -80,6 +80,8 @@ namespace GradeBotWebAPI
             // Регистрация зависимостей
             builder.Services.AddAuthorization();
             builder.Services.AddSingleton(new SqliteConnectionFactory(connectionString));
+            builder.Services.AddSingleton<GradeCalculatorService>();
+
             builder.Services.AddScoped<StudentService>();
             builder.Services.AddScoped<GradeService>();
             builder.Services.AddScoped<AuthService>();
@@ -101,12 +103,7 @@ namespace GradeBotWebAPI
 
             app.MapControllers();
 
-            var dataSource = app.Services.GetRequiredService<Microsoft.AspNetCore.Routing.EndpointDataSource>();
-            foreach (var endpoint in dataSource.Endpoints)
-            {
-                Console.WriteLine($"➡ Endpoint: {endpoint.DisplayName}");
-            }
-
+            
             app.Run();
         }
     }

@@ -19,7 +19,7 @@ namespace GradeBotWebAPI.Controllers
 
         // POST api/auth/register
         //регистрация новых пользоватлей
-        [HttpPost("register")]
+        [HttpPost("Register")]
         [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
@@ -32,7 +32,7 @@ namespace GradeBotWebAPI.Controllers
 
         // POST api/auth/login
         //метод входа по логину 
-        [HttpPost("login")]
+        [HttpPost("Login")]
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
