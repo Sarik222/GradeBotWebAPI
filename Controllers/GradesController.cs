@@ -47,7 +47,6 @@ namespace GradeBotWebAPI.Controllers
         [Authorize(Roles = "Student")]
         public async Task<IActionResult> AddGrade([FromBody] AddGradeRequest request)
         {
-
             var email = User.FindFirst(ClaimTypes.Email)?.Value;
             if (email == null)
             {
@@ -68,9 +67,23 @@ namespace GradeBotWebAPI.Controllers
                 WorkType = request.WorkType
             };
 
-            await _gradeService.AddGradeAsync(grade);
-
-            return Ok();
+            try
+            {
+                await _gradeService.AddGradeAsync(grade);
+                return Ok();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Внутренняя ошибка сервера: {ex.Message}");
+            }
         }
 
         [HttpGet("My grades")]

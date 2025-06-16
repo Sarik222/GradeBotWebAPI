@@ -86,16 +86,7 @@ namespace GradeBotWebAPI.Services
             return await connection.QueryAsync<Grade>(sql, new { StudentId = studentId });
         }
 
-        //public async Task<IEnumerable<Grade>> GetGradesByStudentNameAsync(string name) //Возвращает оценки студентов, чьи имена частично совпадают с заданным name
-        //{
-        //    using var connection = _factory.CreateConnection();
-        //    string sql = @"
-        //        SELECT g.*
-        //        FROM Grades g
-        //        JOIN Students s ON g.StudentId = s.Id 
-        //        WHERE s.Name LIKE @Name";//Используется JOIN с таблицей Students, чтобы найти ID по имени
-        //    return await connection.QueryAsync<Grade>(sql, new { Name = $"%{name}%" });
-        //}
+        
 
         public async Task UpdateGradeAsync(Grade grade) //Обновляет существующую оценку по её Id
         {

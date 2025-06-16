@@ -35,12 +35,6 @@ namespace GradeBotWebAPI.Services
             return await connection.QueryFirstOrDefaultAsync<Student>(sql, new { Id = userId });
         }
 
-        //public async Task<IEnumerable<Student>> SearchByNameAsync(string name) //поиск студентов по части имени 
-        //{
-        //    using var connection = _factory.CreateConnection();
-        //    string sql = "SELECT * FROM Students WHERE Name LIKE @Name";
-        //    return await connection.QueryAsync<Student>(sql, new { Name = $"%{name}%" });
-        //}
 
         public async Task<bool> DeleteAsync(int id)
         {

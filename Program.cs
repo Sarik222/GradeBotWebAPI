@@ -1,15 +1,17 @@
-﻿using GradeBotWebAPI.Database;
+﻿using GradeBotWebAPI.TelegramBot;
+using GradeBotWebAPI.Database;
 using GradeBotWebAPI.Models;
 using GradeBotWebAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
+
 namespace GradeBotWebAPI
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddControllers();
@@ -56,6 +58,9 @@ namespace GradeBotWebAPI
             builder.Services.Configure<JwtSettings>(jwtSection);
             var jwtSettings = jwtSection.Get<JwtSettings>();
 
+           
+
+
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -76,11 +81,14 @@ namespace GradeBotWebAPI
             };
             }); ;
 
+            builder.Services.Configure<BotConfiguration>(builder.Configuration.GetSection("TelegramBotSettings"));
+            builder.Services.AddSingleton<TelegramBotService>();
 
             // Регистрация зависимостей
             builder.Services.AddAuthorization();
             builder.Services.AddSingleton(new SqliteConnectionFactory(connectionString));
             builder.Services.AddSingleton<GradeCalculatorService>();
+            builder.Services.AddHttpClient();
 
             builder.Services.AddScoped<StudentService>();
             builder.Services.AddScoped<GradeService>();
@@ -96,14 +104,17 @@ namespace GradeBotWebAPI
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();
 
-            
+
+
+            var botService = app.Services.GetRequiredService<TelegramBotService>();
+            await botService.StartAsync();
+
             app.Run();
         }
     }

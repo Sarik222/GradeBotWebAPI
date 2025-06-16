@@ -24,20 +24,20 @@ namespace GradeBotWebAPI.Services
 
         public async Task<bool> RegisterAsync(string email, string password, string role)
         {
-            if (!email.EndsWith("@edu.hse.ru")) return false;
+            if (!email.EndsWith("@edu.hse.ru"))
+                return false;
 
-            if (await UserExistsAsync(email)) return false;
+            if (await UserExistsAsync(email))
+                return false;
 
-            var firstChar = role.Trim().ToLower().FirstOrDefault();
+            role = role.Trim().ToLower();
 
-            string normalizedRole = firstChar switch
-            {
-                'с' => "Student",
-                'а' => "Admin",
-                'С' => "Student",
-                'А' => "Admin",
-                _ => throw new ArgumentException("Некорректная роль. Введите роль, начинающуюся на 'с' или 'а'.")
-            };
+            if (role == "студент" || role == "Студент" || role == "Student" || role == "student")
+                role = "Student";
+            else if (role == "админ" || role == "Админ" || role == "Admin" || role == "admin")
+                role = "Admin";
+            else if (role != "Student" && role != "Admin")
+                throw new ArgumentException("Некорректная роль. Введите 'Студент' или 'Админ'.");
 
             var passwordHash = ComputeHash(password);
 
@@ -45,19 +45,21 @@ namespace GradeBotWebAPI.Services
             {
                 Email = email,
                 PasswordHash = passwordHash,
-                Role = normalizedRole
+                Role = role // уже нормализованное
             };
 
             using var connection = _factory.CreateConnection();
+
             string sql = "INSERT INTO Users (Email, PasswordHash, Role) VALUES (@Email, @PasswordHash, @Role)";
             await connection.ExecuteAsync(sql, user);
-            if (normalizedRole == "Student")
+
+            if (role == "Student")
             {
-                string insertStudentSql = "INSERT INTO Students (Name, Email) Values (@Name, @Email)";
+                string insertStudentSql = "INSERT INTO Students (Name, Email) VALUES (@Name, @Email)";
                 var student = new { Name = "", Email = email };
                 await connection.ExecuteAsync(insertStudentSql, student);
-                
             }
+
             return true;
         }
 

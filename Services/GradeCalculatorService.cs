@@ -43,9 +43,9 @@ namespace GradeBotWebAPI.Services
 
             ["Английский язык"] = new Dictionary<string, int?>
             {
-                ["Лексико-грамматический тест"] = 3,
-                ["Монолог"] = 3,
-                ["Описание графика"] = 3,
+                ["Лексико-грамматический тест"] = null,
+                ["Монолог"] = null,
+                ["Описание графика"] = null,
                 ["Экзамен"] = 1
             },
 
@@ -186,7 +186,7 @@ namespace GradeBotWebAPI.Services
                         .Average();
 
                     // итоговый балл с учётом весов
-                    return 0.25 * avgTest + 0.25 * avgMonologue + 0.10 * avgDescription + 0.40 * avgExam;
+                    return 0.25 * avgTest + 0.2 * avgMonologue + 0.25 * avgDescription + 0.3 * avgExam;
                 },
 
                 ["Практикум по основам разработки технической документации"] = grades =>
